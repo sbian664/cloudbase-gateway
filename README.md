@@ -67,10 +67,23 @@ Open http://127.0.0.1:8788/admin. In another local terminal, run `node web.cjs a
 - Admin and inference authentication are separate. The gateway binds to loopback and validates the Host and Origin of requests. This development build is not designed for direct public exposure.
 - Accounts use independent Node.js worker threads, started on use or successful login, with the same official SDK as v0.1. A key is bound to one explicit account. No automatic account rotation or replay of model calls is performed.
 - Account removal removes the local session and its associated keys; it does not revoke the remote session.
-- The WebUI supports the official username/password channel. OAuth, additional upstream types, tool calling, Responses API, and Anthropic Messages are not implemented here.
+- The WebUI supports official CloudBase Web SDK authentication with username/password, email or SMS OTP, WeChat Open Platform, Google, GitHub, Apple OAuth, and a custom ticket issued by an authorized external authentication service. Other upstream types, tool calling, Responses API, and Anthropic Messages are not implemented here.
 - Session state and statistics are stored atomically in `~/.config/cloudbase-gateway/webui/state.json` (mode 0600; parent directory 0700), with `CBG_WEB_DIR` as an override. Passwords are not persisted. API key hashes, rather than raw inference keys, are retained. The administrator key and session tokens are sensitive.
 - Request logs retain 500 metadata-only entries; lifetime counters survive restart. Latency percentiles use recent successful requests; unknown token usage is not estimated. There are no additional database or frontend server processes.
 - Health checks describe current local session readiness and do not actively probe model entitlement or spend tokens.
 - `node web.cjs start --port 8789` can use a different local port when required.
 
-This branch has automated offline coverage for the HTTP and management interfaces and the actual SDK initialization in isolated workers. Live WebUI login and live multi-account requests still need verification against authorized accounts. All calls are official Web-channel calls, subject to the provider's access and billing rules.
+This branch has automated offline coverage for the HTTP and management interfaces and the actual SDK initialization in isolated workers. Live WebUI login and live multi-account requests still need verification against authorized accounts, including each newly added identity provider. All calls are official Web-channel calls, subject to the provider's access and billing rules.
+
+
+### Authentication methods
+Enable the selected identity provider in CloudBase first; the gateway does not change environment-level identity settings. The channel page reports implemented login paths, not the remotely configured provider status.
+
+- Password: existing CloudBase username/password.
+- SMS/email: sign in to an existing account, using the SDK's OTP verification callback. SMS requires the Shanghai region. An OTP attempt lives for up to five minutes, with at most five verification attempts and a local 60-second resend cooldown. User creation is not requested by the gateway.
+- WeChat Open Platform (wx_open): use the configured website application and its authorized redirect. If the identity is not linked to a CloudBase user, complete linking through your official application first.
+- Google, GitHub, Apple: configure the provider in CloudBase and authorize the appropriate callback URL. The default local callback is http://127.0.0.1:8788/admin (or http://localhost:8788/admin if accessed through localhost). Each provider has its own domain/HTTPS restrictions; if loopback is not accepted, this local preview cannot complete that provider's login until an approved callback deployment is configured. OAuth uses the official SDK provider redirect and code exchange, with a random, one-use state and a five-minute in-memory transaction. No upstream credentials or authorization codes are printed.
+- Custom Ticket: use a ticket already issued for the user by your trusted identity service; no signing key or ticket minting is supported.
+- WeChat Cloud Service Assistant mini-program: shown for reference, not available through this Web runtime. Native mini-program authentication and Web-channel authorization are separate.
+
+All newly added methods have offline flow tests. Provider configuration, real OTP delivery, real OAuth consent and real ticket issuance have not been verified in a live environment. See https://docs.cloudbase.net/api-reference/webv3/authentication and https://docs.cloudbase.net/authentication-v2/method/wechat-login.
