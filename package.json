@@ -2,6 +2,7 @@
   "name": "cloudbase-gateway-local",
   "version": "0.4.0",
   "private": true,
+  "license": "MIT",
   "type": "commonjs",
   "bin": {
     "cloudbase-gateway": "web.cjs"
@@ -21,6 +22,7 @@
     "lib/",
     "web/",
     "scf-bridge/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ]
 }

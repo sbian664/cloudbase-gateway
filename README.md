@@ -193,3 +193,10 @@ unset CBG_KEY
 ```sh
 npm test
 ```
+
+---
+
+## 开源协议
+
+本项目采用 [MIT License](LICENSE) 开源。
+
