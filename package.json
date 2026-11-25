@@ -1,6 +1,6 @@
 {
   "name": "cloudbase-gateway-local",
-  "version": "0.1.0",
+  "version": "0.2.0-dev",
   "private": true,
   "type": "commonjs",
   "dependencies": {
@@ -11,7 +11,8 @@
   },
   "scripts": {
     "start": "node cli.cjs start",
-    "test": "node --test test/*.test.cjs"
+    "test": "node --test test/*.test.cjs",
+    "web": "node web.cjs start"
   },
   "engines": {
     "node": ">=20"
@@ -20,6 +21,8 @@
   "files": [
     "cli.cjs",
     "lib/",
-    "README.md"
+    "README.md",
+    "web.cjs",
+    "web/"
   ]
 }

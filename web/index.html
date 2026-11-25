@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f7fb"><title>CloudBase Gateway · 控制台</title>
+<link rel="stylesheet" href="/assets/dashboard.css"><script defer src="/assets/dashboard.js"></script>
+</head>
+<body>
+<section id="login-screen" class="login-screen">
+ <div class="login-card">
+  <div class="brand"><span class="brand-mark">CB</span><div><strong>CloudBase<span class="accent"> Gateway</span></strong><small>LOCAL API WORKSPACE</small></div></div>
+  <h1>登录控制台</h1><p class="muted">使用独立管理密钥进入工作台，管理授权账号、模型和 API Key。</p>
+  <form id="login-form"><label for="admin-key">管理密钥</label><input id="admin-key" type="password" required autocomplete="current-password" placeholder="cbg-admin-…"><button class="primary wide" type="submit">进入控制台 <span>→</span></button></form>
+  <p id="login-error" class="error" role="alert"></p>
+  <div class="note">在终端运行 <code>node web.cjs admin-key</code> 获取管理密钥。它与推理 API Key 相互独立。</div>
+ </div>
+</section>
+<div id="shell" class="shell" hidden>
+ <aside class="sidebar">
+  <div class="brand"><span class="brand-mark">CB</span><div><strong>CloudBase<span class="accent"> Gateway</span></strong><small>LOCAL API WORKSPACE</small></div></div>
+  <div class="nav-label">WORKSPACE</div>
+  <nav id="nav" aria-label="控制台导航">
+   <button data-view="overview" class="active"><span class="nav-icon">▦</span>运行概览</button>
+   <button data-view="channels"><span class="nav-icon">◇</span>渠道管理</button>
+   <button data-view="accounts"><span class="nav-icon">♙</span>账号管理</button>
+   <button data-view="keys"><span class="nav-icon">⚿</span>API Keys</button>
+   <button data-view="models"><span class="nav-icon">▤</span>模型管理</button>
+   <button data-view="logs"><span class="nav-icon">≡</span>请求日志</button>
+   <button data-view="settings"><span class="nav-icon">⚙</span>系统设置</button>
+  </nav>
+  <div class="side-foot"><span class="dot"></span> 本地 Web SDK 网关 <small>v0.2.0-dev · Loopback only</small></div>
+ </aside>
+ <main>
+  <header class="topbar"><div><span class="eyebrow">WORKSPACE / <span id="crumb">OVERVIEW</span></span></div><div class="toolbar"><span class="status"><span class="dot"></span> 服务在线</span><button id="reload" class="ghost">刷新</button><button id="logout" class="ghost">退出</button></div></header>
+  <div class="content">
+   <div class="heading"><div><h1 id="title">运行概览</h1><p class="muted" id="subtitle">掌握本地 API 网关的运行与使用情况。</p></div><span class="muted small" id="sync-state">正在连接…</span></div>
+   <div id="notice" class="notice" role="status" hidden></div>
+   <section class="view" id="view-overview">
+    <div class="stats">
+     <article class="card stat"><span>授权账号</span><strong id="stat-accounts">—</strong><small>已启用 / 全部</small></article>
+     <article class="card stat"><span>累计请求</span><strong id="stat-requests">—</strong><small>已记录的推理请求</small></article>
+     <article class="card stat"><span>已知 Token 用量</span><strong id="stat-tokens">—</strong><small>上游实际返回的 usage</small></article>
+     <article class="card stat"><span>运行内存 RSS</span><strong id="stat-rss">—</strong><small>Node.js 进程（含 worker）</small></article>
+    </div>
+    <div class="two">
+     <article class="card"><div class="card-head"><h2>响应成功率</h2><span class="chip">累计请求</span></div><div class="health"><div class="ring" id="ring"><div><strong id="success-rate">—</strong><small>成功率</small></div></div><div class="legend"><p><span class="dot"></span> 成功 <strong id="success-count">0</strong></p><p><span class="dot danger-dot"></span> 失败 <strong id="error-count">0</strong></p><small id="latency-note">暂无耗时样本</small></div></div><p class="muted small">失败请求不会自动换账号重试。</p></article>
+     <article class="card"><div class="card-head"><h2>Token 用量</h2><span class="chip">官方 Web SDK</span></div><strong class="token-total" id="token-total">0</strong><p class="muted small">仅统计返回 usage 的请求，不估算费用或赠送额度。</p><div class="bar-label"><span>输入 Prompt</span><strong id="token-in">0</strong></div><div class="bar"><i id="bar-in"></i></div><div class="bar-label"><span>输出 Completion</span><strong id="token-out">0</strong></div><div class="bar purple"><i id="bar-out"></i></div></article>
+    </div>
+    <article class="card"><div class="card-head"><h2>接入信息</h2><span class="chip" id="runtime-status">等待授权</span></div><label>OpenAI Base URL</label><div class="copy-row"><input id="base-url" readonly><button class="secondary" id="copy-base">复制地址</button></div><p class="muted small">在账号管理添加合法账号，再创建绑定该账号的 API Key。每个 Key 仅路由到指定账号。</p><div class="actions"><button data-jump="accounts" class="primary">管理账号</button><button data-jump="keys" class="secondary">创建 API Key</button></div></article>
+   </section>
+   <section class="view" id="view-channels" hidden>
+    <article class="card"><div class="card-head"><h2>CloudBase 官方 Web SDK</h2><span class="chip good">已实现</span></div><p class="muted">CloudBase JS SDK 3.11.1 · 标准文本生成 · SSE</p><div class="info-grid"><div><span>认证方式</span><strong>用户名 / 密码</strong></div><div><span>运行方式</span><strong>Node.js Worker</strong></div><div><span>账号数量</span><strong id="channel-count">0</strong></div><div><span>使用规则</span><strong>Web 通道计费</strong></div></div><button class="primary" data-jump="accounts">管理此渠道的账号</button></article>
+    <article class="card"><div class="card-head"><h2>其他身份源与渠道</h2><span class="chip">规划中</span></div><p class="muted">预留 OAuth 和其他官方上游扩展。当前版本只开放已实现的 Web SDK 密码认证，不会把 Web 会话当成小程序原生凭证。</p></article>
+   </section>
+   <section class="view" id="view-accounts" hidden>
+    <article class="card"><div class="card-head"><div><h2>授权账号</h2><p class="muted small">每个账号使用独立 SDK Worker；手动绑定，不自动轮换。</p></div><button class="primary" id="add-account">＋ 添加账号</button></div><div class="table-scroll"><table><thead><tr><th>账号</th><th>环境 / 地域</th><th>会话状态</th><th>操作</th></tr></thead><tbody id="accounts-table"></tbody></table></div></article>
+   </section>
+   <section class="view" id="view-keys" hidden>
+    <article class="card"><div class="card-head"><div><h2>API Keys</h2><p class="muted small">密钥仅在创建时显示完整内容；服务器只保存哈希值。</p></div><button class="primary" id="add-key">＋ 创建密钥</button></div><div class="table-scroll"><table><thead><tr><th>名称 / 前缀</th><th>绑定账号</th><th>请求 / Token</th><th>状态</th><th>操作</th></tr></thead><tbody id="keys-table"></tbody></table></div></article>
+   </section>
+   <section class="view" id="view-models" hidden>
+    <article class="card"><div class="card-head"><h2>候选模型</h2><span class="chip">文本模型</span></div><p class="muted small">开关影响 /v1/models 与推理请求校验，不代表云端已授权该模型。</p><div id="model-list" class="model-grid"></div></article>
+   </section>
+   <section class="view" id="view-logs" hidden>
+    <article class="card"><div class="card-head"><div><h2>请求记录</h2><p class="muted small">保留最近 500 条，仅保存元数据，不记录提示词、输出或密钥。</p></div><select id="log-filter" aria-label="过滤请求"><option value="all">全部请求</option><option value="ok">成功</option><option value="error">失败</option></select></div><div class="table-scroll"><table><thead><tr><th>时间</th><th>模型 / 账号</th><th>状态</th><th>耗时</th><th>Token</th><th>错误码</th></tr></thead><tbody id="logs-table"></tbody></table></div></article>
+   </section>
+   <section class="view" id="view-settings" hidden>
+    <article class="card"><div class="card-head"><h2>运行设置</h2><span class="chip">本地持久化</span></div><form id="settings-form"><label for="concurrency">全局最大并发请求数</label><input type="number" min="1" max="16" id="concurrency" required><p class="muted small">并发调整立即生效。请求超时、响应协议沿用 v0.1.0。</p><button type="submit" class="primary">保存设置</button></form></article>
+    <article class="card"><h2>安全与存储</h2><div class="info-grid"><div><span>监听地址</span><strong id="listen-address">127.0.0.1</strong></div><div><span>管理鉴权</span><strong>独立 Admin Key</strong></div><div><span>会话目录</span><strong>本地 · 0600</strong></div><div><span>进程运行时长</span><strong id="uptime">—</strong></div></div><p class="muted small">本版仅允许本机访问。请勿直接暴露到公网；真实调用依照 CloudBase 官方授权与 Web 通道计费。</p></article>
+   </section>
+  </div>
+ </main>
+</div>
+<dialog id="account-dialog"><form id="account-form"><div class="dialog-head"><div><h2>添加 CloudBase 账号</h2><p class="muted small">使用云开发用户账号，不是腾讯云管理账号。</p></div><button type="button" class="ghost" data-close="account-dialog">关闭</button></div><label>账号别名<input name="name" placeholder="例如：开发环境" required maxlength="80"></label><label>环境 ID<input name="env" placeholder="CloudBase environment ID" required></label><label>地域<input name="region" value="ap-shanghai" required></label><label>Publishable Key<input name="publishableKey" type="password" autocomplete="off" required placeholder="仅客户端公开密钥"></label><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><p class="muted small">密码不保存，使用官方 SDK 建立并维护会话。</p><p class="error" id="account-error" role="alert"></p><button type="submit" class="primary wide">验证登录并添加</button></form></dialog>
+<dialog id="key-dialog"><form id="key-form"><div class="dialog-head"><h2>创建 API Key</h2><button type="button" class="ghost" data-close="key-dialog">关闭</button></div><label>密钥名称<input name="name" required maxlength="80" placeholder="例如：本地客户端"></label><label>绑定账号<select name="accountId" id="key-account" required></select></label><p class="error" id="key-error" role="alert"></p><button type="submit" class="primary wide">创建</button></form><div id="created-key" hidden><h3>请保存完整密钥</h3><p class="muted small">关闭后将无法再次查看。</p><div class="copy-row"><input id="created-key-value" readonly><button id="copy-key" class="secondary">复制</button></div><button class="primary wide" data-close="key-dialog">完成</button></div></dialog>
+</body></html>

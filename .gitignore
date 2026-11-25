@@ -5,3 +5,8 @@ config.json
 session.lock
 *.log
 .DS_Store
+
+# Local WebUI state and temporary files
+state.json
+web.lock
+*.tmp

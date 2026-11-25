@@ -53,3 +53,24 @@ Bearer gateway key required for model endpoints. Max 4 concurrent requests; 1 Mi
 npm test
 ```
 The automated suite includes offline SDK initialization and injected authentication/HTTP fixtures. In the initial local deployment, the operator confirmed successful Node.js login, gateway startup, and live non-streaming and streaming Hy3 requests. Session refresh under prolonged operation, additional models, and cross-platform compatibility remain to be independently verified.
+
+## WebUI preview (v0.2.0-dev)
+The original v0.1 CLI and its configuration remain supported. The new WebUI mode uses a separate local state file and a separate port, so it does not silently import or reuse an active CLI session.
+
+```sh
+npm ci
+npm run web
+```
+
+Open http://127.0.0.1:8788/admin. In another local terminal, run `node web.cjs admin-key` to obtain the administrator key. This is not an inference API key. Sign in, add an authorized CloudBase Web user account, and create a client key bound to that account. The API base URL is http://127.0.0.1:8788/v1. An inference key is shown only at creation; save it locally.
+
+- Admin and inference authentication are separate. The gateway binds to loopback and validates the Host and Origin of requests. This development build is not designed for direct public exposure.
+- Accounts use independent Node.js worker threads, started on use or successful login, with the same official SDK as v0.1. A key is bound to one explicit account. No automatic account rotation or replay of model calls is performed.
+- Account removal removes the local session and its associated keys; it does not revoke the remote session.
+- The WebUI supports the official username/password channel. OAuth, additional upstream types, tool calling, Responses API, and Anthropic Messages are not implemented here.
+- Session state and statistics are stored atomically in `~/.config/cloudbase-gateway/webui/state.json` (mode 0600; parent directory 0700), with `CBG_WEB_DIR` as an override. Passwords are not persisted. API key hashes, rather than raw inference keys, are retained. The administrator key and session tokens are sensitive.
+- Request logs retain 500 metadata-only entries; lifetime counters survive restart. Latency percentiles use recent successful requests; unknown token usage is not estimated. There are no additional database or frontend server processes.
+- Health checks describe current local session readiness and do not actively probe model entitlement or spend tokens.
+- `node web.cjs start --port 8789` can use a different local port when required.
+
+This branch has automated offline coverage for the HTTP and management interfaces and the actual SDK initialization in isolated workers. Live WebUI login and live multi-account requests still need verification against authorized accounts. All calls are official Web-channel calls, subject to the provider's access and billing rules.
