@@ -9,7 +9,7 @@
 <section id="login-screen" class="login-screen">
  <div class="login-card">
   <div class="brand"><span class="brand-mark">CB</span><div><strong>CloudBase<span class="accent"> Gateway</span></strong><small>LOCAL API WORKSPACE</small></div></div>
-  <h1>登录控制台</h1><p class="muted">使用独立管理密钥进入工作台，管理授权账号、模型和 API Key。</p>
+  <h1>登录控制台</h1><p class="muted">使用独立管理密钥进入工作台，管理云函数/云托管、小程序原生通道、模型与 API Key。</p>
   <form id="login-form"><label for="admin-key">管理密钥</label><input id="admin-key" type="password" required autocomplete="current-password" placeholder="cbg-admin-…"><button class="primary wide" type="submit">进入控制台 <span>→</span></button></form>
   <p id="login-error" class="error" role="alert"></p>
   <div class="note">在终端运行 <code>node web.cjs admin-key</code> 获取管理密钥。它与推理 API Key 相互独立。</div>
@@ -28,7 +28,7 @@
    <button data-view="logs"><span class="nav-icon">≡</span>请求日志</button>
    <button data-view="settings"><span class="nav-icon">⚙</span>系统设置</button>
   </nav>
-  <div class="side-foot"><span class="dot"></span> 本地 Web SDK 网关 <small>v0.2.0-dev · Loopback only</small></div>
+  <div class="side-foot"><span class="dot"></span> 本地双通道 AI 网关 <small>v0.4.0-dev · Loopback only</small></div>
  </aside>
  <main>
   <header class="topbar"><div><span class="eyebrow">WORKSPACE / <span id="crumb">OVERVIEW</span></span></div><div class="toolbar"><span class="status"><span class="dot"></span> 服务在线</span><button id="reload" class="ghost">刷新</button><button id="logout" class="ghost">退出</button></div></header>
@@ -37,23 +37,23 @@
    <div id="notice" class="notice" role="status" hidden></div>
    <section class="view" id="view-overview">
     <div class="stats">
-     <article class="card stat"><span>授权账号</span><strong id="stat-accounts">—</strong><small>已启用 / 全部</small></article>
+     <article class="card stat"><span>通道账号</span><strong id="stat-accounts">—</strong><small>已启用 / 全部</small></article>
      <article class="card stat"><span>累计请求</span><strong id="stat-requests">—</strong><small>已记录的推理请求</small></article>
      <article class="card stat"><span>已知 Token 用量</span><strong id="stat-tokens">—</strong><small>上游实际返回的 usage</small></article>
-     <article class="card stat"><span>运行内存 RSS</span><strong id="stat-rss">—</strong><small>Node.js 进程（含 worker）</small></article>
+     <article class="card stat"><span>运行内存 RSS</span><strong id="stat-rss">—</strong><small>轻量 Node.js 进程</small></article>
     </div>
     <div class="two">
      <article class="card"><div class="card-head"><h2>响应成功率</h2><span class="chip">累计请求</span></div><div class="health"><div class="ring" id="ring"><div><strong id="success-rate">—</strong><small>成功率</small></div></div><div class="legend"><p><span class="dot"></span> 成功 <strong id="success-count">0</strong></p><p><span class="dot danger-dot"></span> 失败 <strong id="error-count">0</strong></p><small id="latency-note">暂无耗时样本</small></div></div><p class="muted small">失败请求不会自动换账号重试。</p></article>
-     <article class="card"><div class="card-head"><h2>Token 用量</h2><span class="chip">官方 Web SDK</span></div><strong class="token-total" id="token-total">0</strong><p class="muted small">仅统计返回 usage 的请求，不估算费用或赠送额度。</p><div class="bar-label"><span>输入 Prompt</span><strong id="token-in">0</strong></div><div class="bar"><i id="bar-in"></i></div><div class="bar-label"><span>输出 Completion</span><strong id="token-out">0</strong></div><div class="bar purple"><i id="bar-out"></i></div></article>
+     <article class="card"><div class="card-head"><h2>Token 用量</h2><span class="chip">全通道统计</span></div><strong class="token-total" id="token-total">0</strong><p class="muted small">仅统计返回 usage 的请求，实际抵扣类别请以云开发控制台为准。</p><div class="bar-label"><span>输入 Prompt</span><strong id="token-in">0</strong></div><div class="bar"><i id="bar-in"></i></div><div class="bar-label"><span>输出 Completion</span><strong id="token-out">0</strong></div><div class="bar purple"><i id="bar-out"></i></div></article>
     </div>
-    <article class="card"><div class="card-head"><h2>接入信息</h2><span class="chip" id="runtime-status">等待授权</span></div><label>OpenAI Base URL</label><div class="copy-row"><input id="base-url" readonly><button class="secondary" id="copy-base">复制地址</button></div><p class="muted small">在账号管理添加合法账号，再创建绑定该账号的 API Key。每个 Key 仅路由到指定账号。</p><div class="actions"><button data-jump="accounts" class="primary">管理账号</button><button data-jump="keys" class="secondary">创建 API Key</button></div></article>
+    <article class="card"><div class="card-head"><h2>接入信息</h2><span class="chip" id="runtime-status">等待配置</span></div><label>OpenAI Base URL</label><div class="copy-row"><input id="base-url" readonly><button class="secondary" id="copy-base">复制地址</button></div><p class="muted small">在账号管理中添加「CloudBase 云函数 / 云托管」或「微信小程序原生」账号，再创建绑定该账号的 API Key。</p><div class="actions"><button data-jump="accounts" class="primary">管理账号</button><button data-jump="keys" class="secondary">创建 API Key</button></div></article>
    </section>
    <section class="view" id="view-channels" hidden>
-    <article class="card"><div class="card-head"><h2>CloudBase 官方 Web SDK</h2><span class="chip good">已实现</span></div><p class="muted">CloudBase JS SDK 3.11.1 · 标准文本生成 · SSE</p><div class="info-grid"><div><span>认证方式</span><strong>密码 / 验证码 / OAuth / Ticket</strong></div><div><span>运行方式</span><strong>Node.js Worker</strong></div><div><span>账号数量</span><strong id="channel-count">0</strong></div><div><span>使用规则</span><strong>Web 通道计费</strong></div></div><button class="primary" data-jump="accounts">管理此渠道的账号</button></article>
-    <article class="card"><div class="card-head"><h2>登录方式</h2><span class="chip">CloudBase 身份源</span></div><p class="muted small">下方为网关支持情况，不代表当前云环境已启用。请先在 CloudBase 控制台配置对应身份源。</p><div id="auth-methods"></div></article>
+    <article class="card"><div class="card-head"><h2>CloudBase 云函数 / 云托管 (@cloudbase/node-sdk)</h2><span class="chip good">官方 Node SDK</span></div><p class="muted">部署 <code>cloudbase-scf-bridge</code> 到你的云开发环境，通过内置运行时凭证调用模型，支持原生 SSE、高并发与无状态运行。</p><div class="info-grid"><div><span>调用链路</span><strong>@cloudbase/node-sdk 4.2.1</strong></div><div><span>部署形态</span><strong>HTTP 云函数 / 云托管容器</strong></div><div><span>已启用 / 总数</span><strong id="scf-channel-count">0 / 0</strong></div><div><span>鉴权方式</span><strong>云环境凭证 + Bridge Token</strong></div></div><button class="primary" data-action="method-add" data-id="scf_node_sdk">＋ 添加云函数 / 云托管</button></article>
+    <article class="card"><div class="card-head"><h2>微信小程序原生 (wx.cloud.extend.AI)</h2><span class="chip good">原生小程序通道</span></div><p class="muted">本地 WebSocket 反向桥接 · 真流式 SSE · 多请求并发 · 经由微信开发者工具直接调用 <code>wx.cloud.extend.AI</code></p><div class="info-grid"><div><span>调用链路</span><strong>wx.cloud.extend.AI</strong></div><div><span>桥接地址</span><strong id="wx-bridge-url">ws://127.0.0.1:8788/bridge/wx</strong></div><div><span>在线 / 总数</span><strong id="wx-channel-count">0 / 0</strong></div><div><span>客户端项目</span><strong>cloudbase-source-lab</strong></div></div><button class="secondary" data-action="method-add" data-id="wx_miniprogram">＋ 添加小程序原生账号</button></article>
    </section>
    <section class="view" id="view-accounts" hidden>
-    <article class="card"><div class="card-head"><div><h2>授权账号</h2><p class="muted small">每个账号使用独立 SDK Worker；手动绑定，不自动轮换。</p></div><button class="primary" id="add-account">＋ 添加账号</button></div><div class="table-scroll"><table><thead><tr><th>账号</th><th>环境 / 地域</th><th>会话状态</th><th>操作</th></tr></thead><tbody id="accounts-table"></tbody></table></div></article>
+    <article class="card"><div class="card-head"><div><h2>通道账号</h2><p class="muted small">支持 CloudBase 云函数 / 云托管（官方 Node SDK）与微信小程序原生桥接；手动绑定 Key，不自动轮换。</p></div><button class="primary" id="add-account">＋ 添加账号</button></div><div class="table-scroll"><table><thead><tr><th>账号</th><th>环境 / 端点</th><th>运行状态</th><th>操作</th></tr></thead><tbody id="accounts-table"></tbody></table></div></article>
    </section>
    <section class="view" id="view-keys" hidden>
     <article class="card"><div class="card-head"><div><h2>API Keys</h2><p class="muted small">密钥仅在创建时显示完整内容；服务器只保存哈希值。</p></div><button class="primary" id="add-key">＋ 创建密钥</button></div><div class="table-scroll"><table><thead><tr><th>名称 / 前缀</th><th>绑定账号</th><th>请求 / Token</th><th>状态</th><th>操作</th></tr></thead><tbody id="keys-table"></tbody></table></div></article>
@@ -65,21 +65,28 @@
     <article class="card"><div class="card-head"><div><h2>请求记录</h2><p class="muted small">保留最近 500 条，仅保存元数据，不记录提示词、输出或密钥。</p></div><select id="log-filter" aria-label="过滤请求"><option value="all">全部请求</option><option value="ok">成功</option><option value="error">失败</option></select></div><div class="table-scroll"><table><thead><tr><th>时间</th><th>模型 / 账号</th><th>状态</th><th>耗时</th><th>Token</th><th>错误码</th></tr></thead><tbody id="logs-table"></tbody></table></div></article>
    </section>
    <section class="view" id="view-settings" hidden>
-    <article class="card"><div class="card-head"><h2>运行设置</h2><span class="chip">本地持久化</span></div><form id="settings-form"><label for="concurrency">全局最大并发请求数</label><input type="number" min="1" max="16" id="concurrency" required><p class="muted small">并发调整立即生效。请求超时、响应协议沿用 v0.1.0。</p><button type="submit" class="primary">保存设置</button></form></article>
-    <article class="card"><h2>安全与存储</h2><div class="info-grid"><div><span>监听地址</span><strong id="listen-address">127.0.0.1</strong></div><div><span>管理鉴权</span><strong>独立 Admin Key</strong></div><div><span>会话目录</span><strong>本地 · 0600</strong></div><div><span>进程运行时长</span><strong id="uptime">—</strong></div></div><p class="muted small">本版仅允许本机访问。请勿直接暴露到公网；真实调用依照 CloudBase 官方授权与 Web 通道计费。</p></article>
+    <article class="card"><div class="card-head"><h2>运行设置</h2><span class="chip">本地持久化</span></div><form id="settings-form"><label for="concurrency">全局最大并发请求数</label><input type="number" min="1" max="16" id="concurrency" required><p class="muted small">并发调整立即生效，同时作用于云函数/云托管与小程序原生通道。</p><button type="submit" class="primary">保存设置</button></form></article>
+    <article class="card"><h2>安全与存储</h2><div class="info-grid"><div><span>监听地址</span><strong id="listen-address">127.0.0.1</strong></div><div><span>管理鉴权</span><strong>独立 Admin Key</strong></div><div><span>配置目录</span><strong>本地 · 0600</strong></div><div><span>进程运行时长</span><strong id="uptime">—</strong></div></div><p class="muted small">本版仅允许本机访问。请勿直接暴露到公网；实际计费与活动包抵扣请以云开发控制台为准。</p></article>
    </section>
   </div>
  </main>
 </div>
-<dialog id="account-dialog"><form id="account-form"><div class="dialog-head"><div><h2>添加 CloudBase 账号</h2><p class="muted small">使用官方 Web SDK；先在云环境启用对应登录方式。</p></div><button type="button" class="ghost" data-close="account-dialog">关闭</button></div>
-<label>认证方式<select name="method" id="auth-method" required><option value="password">用户名密码</option><option value="sms">短信验证码</option><option value="email">邮箱验证码</option><option value="wx_open">微信开放平台</option><option value="google">Google Web 端</option><option value="github">GitHub Web 端</option><option value="apple">Apple</option><option value="ticket">自定义登录（已签发 Ticket）</option><option disabled>微信云服务助手小程序（仅原生）</option></select></label>
+<dialog id="account-dialog"><form id="account-form"><div class="dialog-head"><div><h2>添加通道账号</h2><p class="muted small">选择「云函数 / 云托管」或「微信小程序原生」接入方式。</p></div><button type="button" class="ghost" data-close="account-dialog">关闭</button></div>
+<label>接入通道<select name="method" id="auth-method" required><option value="scf_node_sdk">CloudBase 云函数 / 云托管 (@cloudbase/node-sdk)</option><option value="wx_miniprogram">微信小程序原生 (wx.cloud.extend.AI)</option></select></label>
 <p id="method-hint" class="note small"></p>
 <div id="account-fields">
-<label>账号别名<input name="name" placeholder="例如：开发环境" required maxlength="80"></label><label>环境 ID<input name="env" placeholder="CloudBase environment ID" required></label><label>地域<input name="region" value="ap-shanghai" required></label><label>Publishable Key<input name="publishableKey" type="password" autocomplete="off" required placeholder="仅客户端公开密钥"></label>
-<label id="identity-field"><span id="identity-label">用户名</span><input name="username" autocomplete="username" required></label><label id="password-field">密码<input name="password" type="password" autocomplete="current-password" required></label>
-<label id="ticket-field" hidden>已由可信服务端签发的 Ticket<input name="ticket" type="password" autocomplete="off" disabled></label>
+<label>账号别名<input name="name" placeholder="例如：Hy4 云函数主环境" required maxlength="80"></label>
+<label>环境 ID<input name="env" placeholder="CloudBase environment ID" required></label>
+<label>地域<input name="region" value="ap-shanghai" required></label>
+<label id="endpoint-field">云函数 / 云托管访问地址<input name="endpoint" type="url" placeholder="https://xxx.service.tcloudbase.com/ai-bridge" required maxlength="500"></label>
+<label id="scftoken-field">Bridge Token (CLOUDBASE_BRIDGE_TOKEN)<input name="scfToken" type="password" autocomplete="off" placeholder="云函数环境变量中配置的随机密钥" required maxlength="512"></label>
+<label id="appid-field" hidden>小程序 AppID（可选，用于标注）<input name="appId" placeholder="例如：wx1234567890abcdef" maxlength="64" disabled></label>
 </div>
-<div id="otp-step" hidden><label>验证码<input id="otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="16"></label><p class="muted small">验证码有效期由服务端决定，登录挑战最多保留 5 分钟。</p><button type="button" id="otp-reset" class="ghost">返回并重新发送</button></div>
-<p class="muted small">密码、验证码、Ticket 不持久化；只保存官方 SDK 会话。</p><p class="error" id="account-error" role="alert"></p><button type="submit" id="account-submit" class="primary wide">验证登录并添加</button></form></dialog>
+<p class="muted small" id="account-security-note">凭据仅保存在本机 0600 配置文件中，管理接口不会回显明文密钥。</p>
+<p class="error" id="account-error" role="alert"></p>
+<button type="submit" id="account-submit" class="primary wide">校验连通并添加</button>
+</form></dialog>
+<dialog id="scf-edit-dialog"><form id="scf-edit-form"><div class="dialog-head"><div><h2>修改云函数 / 云托管配置</h2><p class="muted small" id="scf-edit-account"></p></div><button type="button" class="ghost" data-close="scf-edit-dialog">关闭</button></div><p class="note small">更新访问地址或 Bridge Token 后，已绑定的 API Keys 与历史统计保持不变。</p><label>访问地址<input id="scf-edit-endpoint" type="url" required maxlength="500"></label><label>新的 Bridge Token（留空则保持不变）<input id="scf-edit-token" type="password" autocomplete="off" maxlength="512" placeholder="仅在更换密钥时填写"></label><p class="error" id="scf-edit-error" role="alert"></p><button type="submit" class="primary wide">校验连通并保存</button></form></dialog>
+<dialog id="bridge-dialog"><div class="dialog-head"><div><h2>小程序桥接配置</h2><p class="muted small">桥接令牌仅显示一次，关闭后如需更换请点击「重置令牌」。</p></div><button type="button" class="ghost" data-close="bridge-dialog">关闭</button></div><p class="note small">在微信开发者工具中打开 <code>cloudbase-source-lab</code>，勾选「详情 → 本地设置 → 不校验合法域名」，粘贴下方一键配置并点击连接即可走 <code>wx.cloud.extend.AI</code>。</p><label>WebSocket 桥接地址</label><div class="copy-row"><input id="bridge-url-value" readonly><button type="button" id="copy-bridge-url" class="secondary">复制</button></div><label>桥接令牌 (Bridge Token)</label><div class="copy-row"><input id="bridge-token-value" readonly><button type="button" id="copy-bridge-token" class="secondary">复制</button></div><label>一键粘贴配置（粘贴到小程序页「导入配置」框）</label><div class="copy-row"><input id="bridge-bundle-value" readonly><button type="button" id="copy-bridge-bundle" class="primary">复制配置 JSON</button></div><div class="actions" style="margin-top:16px"><button type="button" class="primary wide" data-close="bridge-dialog">我已保存</button></div></dialog>
 <dialog id="key-dialog"><form id="key-form"><div class="dialog-head"><h2>创建 API Key</h2><button type="button" class="ghost" data-close="key-dialog">关闭</button></div><label>密钥名称<input name="name" required maxlength="80" placeholder="例如：本地客户端"></label><label>绑定账号<select name="accountId" id="key-account" required></select></label><p class="error" id="key-error" role="alert"></p><button type="submit" class="primary wide">创建</button></form><div id="created-key" hidden><h3>请保存完整密钥</h3><p class="muted small">关闭后将无法再次查看。</p><div class="copy-row"><input id="created-key-value" readonly><button id="copy-key" class="secondary">复制</button></div><button class="primary wide" data-close="key-dialog">完成</button></div></dialog>
 </body></html>

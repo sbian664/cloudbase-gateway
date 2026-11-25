@@ -1,28 +1,26 @@
 {
   "name": "cloudbase-gateway-local",
-  "version": "0.2.0-dev",
+  "version": "0.4.0",
   "private": true,
   "type": "commonjs",
-  "dependencies": {
-    "@cloudbase/js-sdk": "3.11.1"
-  },
   "bin": {
-    "cloudbase-gateway": "cli.cjs"
+    "cloudbase-gateway": "web.cjs"
   },
   "scripts": {
-    "start": "node cli.cjs start",
-    "test": "node --test test/*.test.cjs",
-    "web": "node web.cjs start"
+    "start": "node web.cjs start",
+    "web": "node web.cjs start",
+    "admin-key": "node web.cjs admin-key",
+    "test": "node --test test/*.test.cjs scf-bridge/server.test.js"
   },
   "engines": {
     "node": ">=20"
   },
-  "description": "Local OpenAI-compatible text gateway over official CloudBase Web SDK",
+  "description": "Local zero-dependency OpenAI-compatible gateway over CloudBase SCF/CloudRun (@cloudbase/node-sdk) and WeChat Mini Program (wx.cloud.extend.AI)",
   "files": [
-    "cli.cjs",
-    "lib/",
-    "README.md",
     "web.cjs",
-    "web/"
+    "lib/",
+    "web/",
+    "scf-bridge/",
+    "README.md"
   ]
 }

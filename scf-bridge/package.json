@@ -1,0 +1,16 @@
+{
+  "name": "cloudbase-scf-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-model OpenAI-compatible HTTP Cloud Function / CloudRun bridge over @cloudbase/node-sdk",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test server.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "4.2.1"
+  }
+}

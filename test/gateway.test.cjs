@@ -3,7 +3,6 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {once}=require('node:events');
 const {createGateway}=require('../lib/server.cjs');
-const {CloudAdapter,validate}=require('../lib/adapter.cjs');
 const key='sk-test-'+ 'a'.repeat(32);
 const auth={ensure:async()=>({}),state:()=>({ready:true}),sync:async()=>{}};
 const usage={prompt_tokens:3,completion_tokens:2,total_tokens:5};
@@ -59,14 +58,4 @@ test('concurrency limit',async()=>{
  try{const r=await send('/v1/chat/completions',body);assert.equal(r.status,429)}finally{release()}
  assert.equal((await a).status,200);
  },{maxConcurrent:1,adapter:{...fixture,generate:async()=>{entered();await wait;return fixture.generate()}}});
-});
-test('adapter invokes SDK and forwards genuine stream events',async()=>{
- let init=0,synced=0;
- const fake={ensure:async()=>{},sync:async()=>{synced++},app:{ai:()=>({createModel:(name)=>{
- assert.equal(name,'cloudbase');init++;return {generateText:async i=>({text:i.messages[0].content,usage,rawResponses:[]}),streamText:async()=>({textStream:(async function*(){yield 'a';yield 'b'})(),usage:Promise.resolve(usage),messages:Promise.resolve([])})}
- }})}};
- const a=new CloudAdapter(fake);const signal=new AbortController().signal;
- assert.equal((await a.generate(validate(body),signal)).text,'hello');
- const events=[];for await(const e of a.stream(validate(body),signal))events.push(e);
- assert.deepEqual(events,[{text:'a'},{text:'b'},{finish:'stop',usage}]);assert.equal(init,1);assert.equal(synced,2);
 });
