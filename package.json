@@ -1,0 +1,25 @@
+{
+  "name": "cloudbase-gateway-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "@cloudbase/js-sdk": "3.11.1"
+  },
+  "bin": {
+    "cloudbase-gateway": "cli.cjs"
+  },
+  "scripts": {
+    "start": "node cli.cjs start",
+    "test": "node --test test/*.test.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "description": "Local OpenAI-compatible text gateway over official CloudBase Web SDK",
+  "files": [
+    "cli.cjs",
+    "lib/",
+    "README.md"
+  ]
+}
